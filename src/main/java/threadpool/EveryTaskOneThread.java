@@ -2,6 +2,8 @@ package threadpool;
 
 /**
  * 每个任务都创建一个新的线程来执行
+ *
+ *  @author mao  2020-3-8 18:49:05
  */
 public class EveryTaskOneThread {
     public static void main(String[] args) {
