@@ -23,6 +23,7 @@ public class UserThreadFactory implements ThreadFactory {
     public Thread newThread(Runnable task) {
         String name = namePrefix + nextId.getAndIncrement();
         Thread thread = new Thread(null, task, name, 0);
+        // 创建线程时打印线程名称
         System.out.println(thread.getName());
         // 此处可以设置守护线程，优先级等
         return thread;
@@ -30,10 +31,16 @@ public class UserThreadFactory implements ThreadFactory {
 }
 
 class Task implements Runnable {
-    private final AtomicInteger count = new AtomicInteger(0);
+    // 统计任务执行次数
+    private final AtomicInteger count = new AtomicInteger(1);
     @Override
     public void run() {
         System.out.println("running_" + count.getAndIncrement());
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
 
