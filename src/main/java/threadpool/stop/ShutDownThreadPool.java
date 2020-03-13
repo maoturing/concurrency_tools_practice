@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 /**
  * 停止线程池，使用shutdown()方法
  * shutdown会等待所有任务都执行完后再停止线程池，此时不能再向线程池添加新任务，shutdown不会真的强制停止线程池
+ *
+ * 查看 execute() 源码可知，当线程池状态不是Running时，无法添加任务到队列，会执行拒绝策略
  */
 public class ShutDownThreadPool {
 
