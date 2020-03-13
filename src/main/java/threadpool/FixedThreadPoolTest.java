@@ -12,6 +12,7 @@ public class FixedThreadPoolTest {
     public static void main(String[] args) {
         ExecutorService executorService = Executors.newFixedThreadPool(3);
 
+        // 输出执行任务的线程名称
         for (int i = 0; i < 1000; i++) {
             executorService.execute(new Task());
         }
@@ -27,6 +28,7 @@ class Task implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        // 输出执行任务的线程名称
         System.out.println(Thread.currentThread().getName());
     }
 }

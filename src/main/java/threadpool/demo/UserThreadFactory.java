@@ -1,4 +1,4 @@
-package threadpool;
+package threadpool.demo;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,6 +26,14 @@ public class UserThreadFactory implements ThreadFactory {
         System.out.println(thread.getName());
         // 此处可以设置守护线程，优先级等
         return thread;
+    }
+}
+
+class Task implements Runnable {
+    private final AtomicInteger count = new AtomicInteger(0);
+    @Override
+    public void run() {
+        System.out.println("running_" + count.getAndIncrement());
     }
 }
 
