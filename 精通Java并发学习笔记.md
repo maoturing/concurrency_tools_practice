@@ -303,6 +303,7 @@ public static ExecutorService newWorkStealingPool() {
  
 - **耗时 IO 型**：比如读写数据库、文件和网络通信等，CPU一般是不工作的，外设的速度远远慢于 CPU，最佳线程数可以设置为 cpu 核心数的很多倍。
 - 线程数 = cpu 核心数 * （1+平均等待时间/平均工作时间）
+- 动态获取 CPU 核心数`int n = Runtime.getRuntime().availableProcessors()`
 
 **手动创建线程池**，应该注意以下 4 点：
 
@@ -356,6 +357,21 @@ public class UserThreadPool {
 }
 ```
 
+创建线程池最佳实践
+---
+```java
+// 创建线程工厂，%d是线程编号，前面是线程自定义名称
+private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+    .setNameFormat("demo-pool-%d").build();
+// 获取CPU核心数
+int n = Runtime.getRuntime().availableProcessors();
+
+private static ExecutorService pool = new ThreadPoolExecutor(n, 2n,
+    0L, TimeUnit.MILLISECONDS,
+    new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+``` 
+
+
 // todo 此处应该补充 Spring 中创建池的方法。
 
 https://mp.weixin.qq.com/s/z3gjfk4l-s8aKD4cvY8CHA  
@@ -368,7 +384,7 @@ https://www.bilibili.com/video/av38657363?p=95
 
 `ThreadPoolExecutor`停止线程有 **5 个相关方法：**
 
-- `shutdown()`  ：通知线程池停止，线程池会等已经添加的任务执行结束后停止
+- `shutdown()`  ：通知线程池停止，线程池会等已经添加的任务执行结束后停止。**最常用**，一般所有任务提交后使用该方法停止线程池，能保证任务执行完毕。
 - `isShutdown()` ：查看线程池是否收到了 shutdown通知，若收到，则不能添加新任务
 - `isTerminated()` ：判断线程池是否**已经停止**，与shutdown不同，shutdown是判断线程池是否开始停止，即是否收到了通知
 - `awaitTermination(long timeout)) ：等待一段时间，检测线程池是否已经停止，该方法是一个死循环，若线程池停止了，返回true，若线程池未停止，则一直检测直至超时，返回false
@@ -998,6 +1014,23 @@ class MyThreadPool {
 [线程池没你想的那么简单 下 - crossoverJie](https://mp.weixin.qq.com/s/nXbdftxLg39L_7mU8gN3hw
 )
 
+
+# 待补充
+
+ScheduledThreadPoolExecutor 与DelayedWorkQueue 的使用示例与源码分析，参考Java并发编程之美
+
+ThreadPoolExecutor#submit方法的作用
+
+创建线程池最佳实践 https://mp.weixin.qq.com/s/i2t0uYxbVeqRKGTc6qurag
+```java
+   private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+       .setNameFormat("demo-pool-%d").build();
+
+   private static ExecutorService pool = new ThreadPoolExecutor(5, 200,
+       0L, TimeUnit.MILLISECONDS,
+       new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+```
+Spring 中创建池
 
 
 # 推荐阅读
