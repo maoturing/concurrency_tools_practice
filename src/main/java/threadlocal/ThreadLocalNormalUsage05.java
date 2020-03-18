@@ -45,14 +45,14 @@ public class ThreadLocalNormalUsage05 {
             });
         }
 
-        // 关闭线程池
+        // 切记关闭线程池
         threadPool.shutdown();
     }
 
     public String toDate(int seconds) {
         // 参数单位是毫秒，表示1970.1.1 00:00:00后多少毫秒
         Date date = new Date(1000 * seconds);
-
+        Thread t = Thread.currentThread();
         // get 获取当前线程的对象副本
         SimpleDateFormat dataFromat = dateFormatThreadLocal.get();
         return dataFromat.format(date);
