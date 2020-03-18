@@ -85,6 +85,7 @@ public ThreadPoolExecutor(int corePoolSize,
 任务提交到线程池，添加线程规则如下：
 
 可记为：**一cool二queue三max最后 reject**。
+![任务处理规则](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/微信图片_20200317154944.jpg)
 
 1. 如果线程数小于 corePoolSize，即使其他线程处于空闲状态，也会**创建一个新线程来执行新任务**。
 2. 如果线程数等于（或大于）corePoolSize 但小于 maxPoolSize，则**将任务放入队列**
@@ -102,6 +103,11 @@ public ThreadPoolExecutor(int corePoolSize,
 **源码分析：** 这里参考了《码出高效p243》，execute方法的作用是提交任务`command`到线程池执行，用户提交任务到线程池的模型图如下所示
 
 ![任务提交到线程池](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200315005328.png)
+![任务执行方法流程](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/微信图片_20200317154949.jpg)
+
+ThreadPoolExecutor采取上述步骤的总体设计思路，是为了在执行execute()方法时，尽可能地避免获取全局锁（那将会是一个严重的可伸缩瓶颈）。
+
+在ThreadPoolExecutor完成预热之后（当前运行的线程数大于等于corePoolSize），几乎所有的execute()方法调用都是执行步骤2，而步骤2不需要获取全局锁。
 
 ```java
 /*
@@ -270,9 +276,13 @@ AbstractExecutorService 对 submit()和 invokeAll() 进行实现。
 
 以下方法都有多种重载方法，可以设置线程数和自定义线程工厂，前三个返回ThreadPoolExecutor 对象，第四个返回 ScheduledThreadPoolExecutor 对象。
 - `Executors#newSingleThreadExecutor()` 创建一个单线程的线程池，相当于单线程串行执行所有任务。
+  ![20200317163707.png](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200317163707.png)
 - `Executors#newFixedThreadPool(n)`  创建指定固定线程数的线程池，core 等于 maxSize，不存在空闲线程，所以keepAliveTime为 0
+  
 - `Executors#newCachedThreadPool()` 高度可伸缩线程池，coreSize为0，任务队列长度为0，任务直接交给线程池创建线程执行，线程空闲时间超过60s会被回收。
 -  `Executors#newScheduledThreadPool()`  适支持定时及周期性任务执行，比 Timer 更安全，功能更强大。是`ScheduledThreadPoolExecutor`的对象。
+
+// 补充 各种线程池执行任务的方法调用图，见java并发编程的艺术p214
 
 通过了解以上4种自动创建线程池的方法，每种方法都有不恰当之处，maxNumPoolSize 设置过大，workQueue 设置为无界队列，在流量突增时都会引发 OOM，所以《阿里巴巴Java编程规范》中**不允许使用 Executors，推荐使用 ThreadPoolExecutor 的方式创建线程池**，这样的处理方式能更加明确线程池的运行规则，规避资源耗尽的风险。
 
@@ -291,6 +301,19 @@ public static ExecutorService newWorkStealingPool() {
 这个线程池和前面的线程池有所不同，在能产生**子任务**的场景才适合使用该线程池。线程可以**窃取**（Stealing）其他线程的任务，提高并行度。
 
 需要注意的是最好不要加锁，因为任务并行执行，不加锁才能发挥出并行的效果。不保证执行顺序，使用场景有限。例如递归情况，可以使用该线程池。
+
+
+
+### 2.3.1 CachedThreadPool
+![20200317163115.png](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200317163115.png)
+
+// **补充** 这两个章节按照Java并发编程的艺术p214，和Java并发编程之美补充
+
+### 2.3.2 ScheduledThreadPool 详解
+
+![20200317163235.png](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200317163235.png)
+
+
 
 
 ## 2.4 手动创建线程池
@@ -357,28 +380,64 @@ public class UserThreadPool {
 }
 ```
 
-创建线程池最佳实践
+guava 创建线程池最佳实践
 ---
+
+首先需要引入 guava 依赖:
+```xml
+<dependency>
+  <groupId>com.google.guava</groupId>
+  <artifactId>guava</artifactId>
+  <version>28.2-jre</version>
+</dependency>
+```
+接下来就可以使用 guava 提供的 ThreadFactoryBuilder 类来创建线程工厂了，核心线程数与 CPU 核心数相等，任务队列长度为 1024，拒绝策略AbortPolicy，**等待执行任务完毕后关闭线程池**。[github 查看完整代码](https://github.com/maoturing/concurrency_tools_practice/blob/master/src/main/java/threadpool/bestpractice/ThreadPoolBestPractice.java)，示例代码如下：
 ```java
-// 创建线程工厂，%d是线程编号，前面是线程自定义名称
-private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-    .setNameFormat("demo-pool-%d").build();
-// 获取CPU核心数
-int n = Runtime.getRuntime().availableProcessors();
+public class ThreadPoolBestPractice {
+    // 创建线程工厂，%d是线程编号，前面是线程自定义名称
+    private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("demo-pool-%d").build();
+    // 获取CPU核心数
+    private static int coreNum = Runtime.getRuntime().availableProcessors();
 
-private static ExecutorService pool = new ThreadPoolExecutor(n, 2n,
-    0L, TimeUnit.MILLISECONDS,
-    new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+    // 1. 创建线程池，corePoolSize 为 cpu 核心数，使用自定义线程工厂
+    private static ExecutorService threadPool = new ThreadPoolExecutor(coreNum, 2 * coreNum,
+            0L, TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
+
+    public static void main(String[] args) throws InterruptedException {
+        System.out.println(Runtime.getRuntime().availableProcessors());
+
+        // 2. 创建任务，打印线程名称
+        Runnable task = () -> {
+            String name = Thread.currentThread().getName();
+            System.out.println(name);
+        };
+
+        // 3. 执行任务
+        for (int i = 0; i < 20; i++) {
+            threadPool.execute(task);
+        }
+
+        // 4. 等待任务执行完毕，停止线程池
+        threadPool.shutdown();
+        boolean isTerminated = threadPool.awaitTermination(1000L, TimeUnit.SECONDS);
+        if (isTerminated) {
+            // 任务执行完毕后打印"Done"
+            System.out.println("Done");
+        }
+    }
+}
 ``` 
-
 
 // todo 此处应该补充 Spring 中创建池的方法。
 
-https://mp.weixin.qq.com/s/z3gjfk4l-s8aKD4cvY8CHA  
-https://mp.weixin.qq.com/s/05Ud0t7ECIYWMePhuOf6tg
+https://mp.weixin.qq.com/s/z3gjfk4l-s8aKD4cvY8CHA  使用自定义线程池执行异步任务
+https://mp.weixin.qq.com/s/05Ud0t7ECIYWMePhuOf6tg  使用Spring默认线程池执行异步任务
 
 // springboot中启动异步任务@Async ，定时任务@Scheduled
 https://www.bilibili.com/video/av38657363?p=95
+
 
 ## 2.5 停止线程池
 
@@ -392,6 +451,9 @@ https://www.bilibili.com/video/av38657363?p=95
 
 [去Github查看停止线程池 5 种相关方法的代码示例。](https://github.com/maoturing/concurrency_tools_practice/blob/master/src/main/java/threadpool/demo/UserThreadPool.java)
 这5个方法的源码分析见《Java 并发编程之美 8.3.3》
+
+// 补充：停止线程池最佳实践
+
 
 ## 2.6 钩子方法与线程池监控
 
@@ -945,6 +1007,11 @@ private void processWorkerExit(Worker w, boolean completedAbruptly) {
 
 通过 ThreadPoolExecutor#getTask 源码可知，在工作线程执行任务时，会从任务队列取出任务，当任务队列为空时，会调用`workQueue.take()`，使线程进入阻塞状态，当有任务时，会线性线程到 Runnable 状态继续复用线程。
 
+### 2.8.3 ScheduledThreadPoolExecutor 的实现
+ScheduledThreadPoolExecutor 的执行示意图如下所示：
+
+DelayQueue 是一个无界队列，封装了一个优先队列 PriorityQueue，会对队列中任务按照执行时间进行排序。
+
 ## 1.9 线程池设计模式
 
 虽然在 Java 语言中创建线程看上去就像创建一个对象一样简单，只需要 new Thread() 就可以了，但实际上创建线程远不是创建一个对象那么简单。创建对象，仅仅是在 JVM 的堆里分配一块内存而已；而创建一个线程，却需要调用操作系统内核的 API，然后操作系统要为线程分配一系列的资源，这个成本就很高了，所以线程是一个重量级的对象，应该避免频繁创建和销毁。
@@ -1017,21 +1084,19 @@ class MyThreadPool {
 
 # 待补充
 
-ScheduledThreadPoolExecutor 与DelayedWorkQueue 的使用示例与源码分析，参考Java并发编程之美
+ScheduledThreadPoolExecutor 与 DelayedWorkQueue 的使用示例与源码分析，参考Java并发编程之美，摘取相应方法执行图。以及优先队列 PriorityQueue 的应用
 
 ThreadPoolExecutor#submit方法的作用
 
-创建线程池最佳实践 https://mp.weixin.qq.com/s/i2t0uYxbVeqRKGTc6qurag
-```java
-   private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-       .setNameFormat("demo-pool-%d").build();
-
-   private static ExecutorService pool = new ThreadPoolExecutor(5, 200,
-       0L, TimeUnit.MILLISECONDS,
-       new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory, new ThreadPoolExecutor.AbortPolicy());
-```
 Spring 中创建池
 
+查看上文中的 **// 补充** 标记
+
+补充Java并发编程的艺术中线程池的方法执行图
+
+ForkJoinPool
+
+java8 parallelStream
 
 # 推荐阅读
 1. [Java并发编程之美 - 翟陆续](https://book.douban.com/subject/30351286/)  内容和慕课网[玩转Java并发](https://coding.imooc.com/class/chapter/409.html)类似，可以配合阅读，有丰富的源码分析，实践部分有10个小案例
@@ -1051,4 +1116,5 @@ Spring 中创建池
 7. [四天学懂 JUC - 周阳](https://www.bilibili.com/video/av70166821)  
 8. [小白科普：线程和线程池 - 码农翻身](https://mp.weixin.qq.com/s/qzoLgNNSZD2NrzBEINVuUg)
 9.  [利用常见场景详解java线程池 - CarpenterLee](https://mp.weixin.qq.com/s/N-2Uv8UewqweGXXAJ63jyQ)
-
+10. [Java线程池总结 - 后端技术精选](https://mp.weixin.qq.com/s/inJCn05ysxcOzCsCsFeDag)
+11. [快速上手SpringBoot:线程池的集成使用](https://mp.weixin.qq.com/s/z3gjfk4l-s8aKD4cvY8CHA)
