@@ -488,9 +488,16 @@ public class ThreadLocalMemoryLeak2 {
 ![没有被回收的ThreadLocal弱引用](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200319020221.png)
 
 
+重点
+------
+以上两个内存泄漏demo都不太合适，**真正内存泄漏的场景是 ThreadLocal 定义在业务类中，线程池定义在其他地方，如果业务对象被回收，则 ThreadLocal 引用会被回收，而线程池引用一直存在。**
+- 如果 ThreadLocal 使用强引用，那么 Entry 不会被回收，发生内存泄漏
+- 如果 ThreadLocal 使用弱引用，Entry 的弱引用 key 会被回收， value 会在 set、get、rehash等方法中删除 key==null 的 value。
+
+
+
 ### 3.4.1 为什么使用弱引用
 从表面上看内存泄漏的根源在于使用了弱引用。网上的文章大多着重分析ThreadLocal使用了弱引用会导致内存泄漏，但是另一个问题也同样值得思考：**为什么使用弱引用而不是强引用？**
-
 
 
 我们先来看看官方文档的说法：
@@ -611,6 +618,7 @@ To help deal with very large and long-lived usages, the hash table entries use W
 1. **使用完一点 remove()**，综合上面的分析，我们可以理解ThreadLocal内存泄漏的前因后果，那么怎么避免内存泄漏呢？
 
 - **每次使用完ThreadLocal，都调用它的remove()方法，清除数据。**
+- **使用完ThreadLocal，当前线程 Thread 也随之运行结束**
 
 在使用线程池的情况下，没有及时清理ThreadLocal，不仅是内存泄漏的问题，更严重的是可能导致业务逻辑出现问题。所以，使用ThreadLocal就跟加锁完要解锁一样，用完就清理。
 
@@ -662,3 +670,4 @@ Spring注解日志记录与ThreadLocal https://www.cnblogs.com/songzehao/p/11000
 1. [ThreadLocal源码完美解读](https://mp.weixin.qq.com/s/mdn5F0Gz9-Ce6-21Z20QxQ)，网上最详细专业全面的源码解读，https://www.cnblogs.com/micrari/p/6790229.html#4524899
 2. [深入分析 ThreadLocal 内存泄漏问题](https://mp.weixin.qq.com/s/VeL9tMavp4ppv3j2w9hwVg) 有问题，get不会清楚key==null的Entry
 3. [Java并发编程入门与高并发面试](https://coding.imooc.com/class/chapter/195.html)  补充笔记
+4. [ThreadLocal 详解与源码解析 - 黑马](https://www.bilibili.com/video/BV1N741127FH)  补充笔记

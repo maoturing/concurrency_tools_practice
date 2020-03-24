@@ -1012,7 +1012,7 @@ ScheduledThreadPoolExecutor 的执行示意图如下所示：
 
 DelayQueue 是一个无界队列，封装了一个优先队列 PriorityQueue，会对队列中任务按照执行时间进行排序。
 
-## 1.9 线程池设计模式
+## 2.9 线程池设计模式
 
 虽然在 Java 语言中创建线程看上去就像创建一个对象一样简单，只需要 new Thread() 就可以了，但实际上创建线程远不是创建一个对象那么简单。创建对象，仅仅是在 JVM 的堆里分配一块内存而已；而创建一个线程，却需要调用操作系统内核的 API，然后操作系统要为线程分配一系列的资源，这个成本就很高了，所以线程是一个重量级的对象，应该避免频繁创建和销毁。
 
@@ -1074,7 +1074,7 @@ class MyThreadPool {
     pool.execute(()->{System.out.println("hello");});
 ```
 
-## 1.10 自己动手实现线程池
+## 2.10 自己动手实现线程池
 
 [线程池没你想的那么简单 上 - crossoverJie](https://mp.weixin.qq.com/s/tT7bfFTbAeu1u6vH4v7SMg)
 
@@ -1102,7 +1102,7 @@ java8 parallelStream
 1. [Java并发编程之美 - 翟陆续](https://book.douban.com/subject/30351286/)  内容和慕课网[玩转Java并发](https://coding.imooc.com/class/chapter/409.html)类似，可以配合阅读，有丰富的源码分析，实践部分有10个小案例
    
 2. [Java并发编程实战 - 极客时间](https://time.geekbang.org/column/intro/159)  内容有深度，并发设计模式，分析了 4 个并发应用案例 Guava RateLimiter，Netty，Disrupter 和 HiKariCP，还介绍了 4 种其他类型的并发模型 Actor，协程，CSP等
-3. [精通Java并发编程 - 哈维尔](https://book.douban.com/subject/30327401/)  非常多的案例，几乎每个知识点和章节都有案例，学习后能更熟悉Java并发的应用
+3. [精通Java并发编程 - 哈维尔](https://book.douban.com/subject/30327401/)  全书20+案例，几乎每个知识点和章节都有案例，现在学的是原理和api，这本书学的是使用并发解决问题
 4. 传智播客8天并发  笔记有并发案例，CPU原理等笔记，非常深入，后面画时间学习一下精
 
 # 参考文档
