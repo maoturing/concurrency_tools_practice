@@ -40,7 +40,7 @@ class Job implements Runnable {
     @Override
     public void run() {
         System.out.println(Thread.currentThread().getName() + "开始打印");
-        printQueue.printJob(new Object());
+        printQueue.printJob();
         System.out.println(Thread.currentThread().getName() + "打印完毕");
     }
 }
@@ -49,7 +49,7 @@ class PrintQueue {
 
     private Lock queueLock = new ReentrantLock(false);   // 将参数改为false，演示不公平锁
 
-    public void printJob(Object document) {
+    public void printJob() {
         queueLock.lock();
         try {
             int duration = new Random().nextInt(10) + 1;
