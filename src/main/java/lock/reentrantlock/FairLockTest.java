@@ -5,11 +5,13 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * 描述：     演示公平和不公平两种情况
+ * 描述：演示公平和不公平两种情况，
+ * 公平锁是先请求锁的先获取，非公平锁是当前释放锁的线程优先获取，因为节省了唤醒线程的时间
+ *
  * 非公平锁会连续打印两次，因为当前线程优先获取锁
  * 公平锁不会连续打印两次，是当前线程打印后换下一个线程打印
  */
-public class FairLock {
+public class FairLockTest {
 
     public static void main(String[] args) {
         PrintQueue printQueue = new PrintQueue();

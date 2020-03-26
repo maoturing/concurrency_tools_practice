@@ -12,11 +12,14 @@ public class ReentrantReadWriteLockDemo {
     private static ReentrantReadWriteLock.WriteLock writeLock = reentrantReadWriteLock.writeLock();
 
     public static void main(String[] args) {
-        // 1,2可以同时读，但是3,4不能同时写，有人写的时候也不能读
+        // 1,2可以同时读，读锁是共享锁
         new Thread(()->readText(), "user1").start();
         new Thread(()->readText(), "user2").start();
+        // 3要获取写锁，需要前面释放读锁
         new Thread(()->writeText(), "user3").start();
+        // 4要获取写锁，需要等待3释放写锁，写锁是排他锁
         new Thread(()->writeText(), "user4").start();
+        // 5需要获取读锁，但是读锁不能插写锁的队，所以5要等待4执行完
         new Thread(()->readText(), "user5").start();
     }
     private static void readText() {
