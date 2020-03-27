@@ -12,23 +12,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class ReentrantLockList2 {
     private ArrayList<String> array = new ArrayList<>();
-    private  ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-    private  ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
-    private  ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
+    private ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private ReentrantReadWriteLock.ReadLock readLock = lock.readLock();
+    private ReentrantReadWriteLock.WriteLock writeLock = lock.writeLock();
 
     public void add(String e) {
         writeLock.lock();
         try {
             array.add(e);
-        }finally {
+        } finally {
             writeLock.unlock();
         }
     }
+
     public void remove(String e) {
         writeLock.lock();
         try {
             array.remove(e);
-        }finally {
+        } finally {
             writeLock.unlock();
         }
     }
@@ -38,7 +39,7 @@ public class ReentrantLockList2 {
         readLock.lock();
         try {
             return array.get(index);
-        }finally {
+        } finally {
             readLock.unlock();
         }
     }

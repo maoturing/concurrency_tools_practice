@@ -5,6 +5,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * 自己动手利用可重入锁ReentrantLock实现一个线程安全的List
+ *
  * @author mao  2020/3/28 6:35
  */
 public class ReentrantLockList {
@@ -15,15 +16,16 @@ public class ReentrantLockList {
         lock.lock();
         try {
             array.add(e);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
+
     public void remove(String e) {
         lock.lock();
         try {
             array.remove(e);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
@@ -34,7 +36,7 @@ public class ReentrantLockList {
         lock.lock();
         try {
             return array.get(index);
-        }finally {
+        } finally {
             lock.unlock();
         }
     }
