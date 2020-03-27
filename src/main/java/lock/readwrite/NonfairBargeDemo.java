@@ -5,7 +5,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * 描述：     演示非公平和公平的ReentrantReadWriteLock读锁的插队策略
  * 公平锁：先到先得，不允许插队
- * 非公平锁：
+ * 非公平锁：请求读锁的线程，在等待队列头部不是请求写线程时可以插队，而不是去唤醒队列中等待的读线程，这与非公平锁一致
  */
 public class NonfairBargeDemo {
 
