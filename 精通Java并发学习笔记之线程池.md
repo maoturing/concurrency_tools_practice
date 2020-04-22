@@ -14,7 +14,7 @@ Tomcat、Netty等框架源码，需要并发编程基础才能看懂；
 
 # 1. 总览并发工具
 
-并发工具类根据功能可分为三大类：
+并发工具JUC（Java Util Concurrent）类根据功能可分为三大类：
 1. 并发安全：
    1. 从底层原理分类：互斥同步（锁）、非互斥同步（atomic）、无同步方案（final）
    2. 从使用角度分类：限制共享变量，避免共享变量，成熟并发工具
@@ -22,6 +22,17 @@ Tomcat、Netty等框架源码，需要并发编程基础才能看懂；
 3. 线程协作：三大并发工具类等
 
 更加详细的分类参考[思维导图](http://naotu.baidu.com/file/ab389987308c34fdc57beb911cd0eb80?token=39caec33969b1e00)的建立并发知识框架分支
+
+
+根据JUC类可以分为以下5类：
+Executors: 线程池
+Atomic: 原子类
+Lock：锁
+Tools：并发工具
+Collections: 并发集合
+
+![JUC 核心类图](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200422224518.png)
+
 
 # 2. 线程池-线程治理最大法宝
 

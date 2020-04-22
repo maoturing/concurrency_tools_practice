@@ -391,6 +391,7 @@ ReentrantReadWriteLock 锁写锁可以降级为读锁提高执行效率，但不
 如果对于某个锁，自旋很少成功获得过，那么以后获取这个锁时将可能省略掉自旋过程，避免浪费处理器资源。
 以上参考《深入理解JVM p298》
 
+![20200403075739](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200403075739.png)
 
 ### 4.4.6 可中断锁与不可中断锁
 
@@ -524,14 +525,19 @@ HotSpot 作者经过研究发现，大多数情况下，**锁不仅不存在多�
 
 
 
+
+
+
 # 推荐阅读
 1. [Java并发编程之美 - 翟陆续](https://book.douban.com/subject/30351286/)  内容和慕课网[玩转Java并发](https://coding.imooc.com/class/chapter/409.html)类似，可以配合阅读，有丰富的源码分析，实践部分有10个小案例
    
 2. [Java并发编程实战 - 极客时间](https://time.geekbang.org/column/intro/159)  内容有深度，并发设计模式，分析了 4 个并发应用案例 Guava RateLimiter，Netty，Disrupter 和 HiKariCP，还介绍了 4 种其他类型的并发模型 Actor，协程，CSP等
 3. [精通Java并发编程 - 哈维尔](https://book.douban.com/subject/30327401/)  非常多的案例，几乎每个知识点和章节都有案例，学习后能更熟悉Java并发的应用
-4. [死磕Java并发源码系列 - 大明哥](http://cmsblogs.com/?cat=151)
-5. [精尽Java并发源码系列 - 芋道源码](http://www.iocoder.cn/JUC/good-collection/)
-6. 传智播客8天并发  笔记有并发案例，CPU原理等笔记，非常深入，后面画时间学习一下精
+4. [不可不说的Java“锁”事 - 美团技术团队](https://mp.weixin.qq.com/s/E2fOUHOabm10k_EVugX08g)
+5. [JUC - 类源码分析和学习指南](https://www.pdai.tech/md/java/thread/java-thread-x-juc-overview.html)
+6. [死磕Java并发源码系列 - 大明哥](http://cmsblogs.com/?cat=151)
+7. [精尽Java并发源码系列 - 芋道源码](http://www.iocoder.cn/JUC/good-collection/)
+8. 传智播客8天并发  笔记有并发案例，CPU原理等笔记，非常深入，后面画时间学习一下精
 
 # 参考文档
 1. [玩转Java并发工具，精通JUC - 慕课网](https://coding.imooc.com/class/chapter/409.html)

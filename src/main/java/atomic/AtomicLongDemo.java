@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 描述：     演示高并发场景下，LongAdder比AtomicLong性能好
- * 1w个线程分别完成1w次自加操作，在这个场景下LongAdder耗时仅为AtomicLong十分之一
+ * 1w个累加任务，每个任务分别完成1w次自加操作，在这个场景下LongAdder耗时仅为AtomicLong十分之一
  */
 public class AtomicLongDemo {
 
