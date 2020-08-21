@@ -425,6 +425,7 @@ ReentrantLock#tryLock(time) 使用AQS获取锁，每次AQS循环都会检测中�
 JDK1.6 实现了各种锁优化技术，如自适应自旋（Adaptive Spinning）、锁消除（Lock Elimination）、锁粗化（Lock Coaresening）、轻量级锁（LightWeight Locking）和偏向锁（Biased Locking）等技术。这些技术都是为了线程之间更高效的共享数据，以及解决竞争问题。
 
 ### 4.5.1 自适应自旋锁
+互斥同步中对性能最大的影响是阻塞的实现，挂起线程和恢复线程的操作都需要操作系统切换到内核态来完成，这些操作对并发性能带来很大压力，
 
 
 
