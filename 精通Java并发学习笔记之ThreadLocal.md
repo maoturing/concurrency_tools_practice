@@ -1,17 +1,17 @@
 # 精通Java并发学习笔记之ThreadLocal
 
-* [3. ThreadLocal](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#3-threadlocal)
-  * [3.1 ThreadLocal 常用方法](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#31-threadlocal-常用方法)
-  * [3.2 ThreadLocal 原理与源码分析](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#32-threadlocal-原理与源码分析)
-    * [3.2.1 Thread、ThreadLocalMap 和 ThreadLocal](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#321-threadthreadlocalmap-和-threadlocal)
-    * [3.2.2 initialValue 设置初始值](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#322-initialvalue-设置初始值)
-    * [3.2.3 set 设置ThreadLocal值](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#323-set-设置threadlocal值)
-  * [3.3 ThreadLocalMap 处理哈希冲突](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#33-threadlocalmap-处理哈希冲突)
-  * [3.4 内存泄漏](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#34-内存泄漏)
-    * [3.4.1 为什么使用弱引用](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#341-为什么使用弱引用)
-    * [3.4.2 ThreadLocal 最佳实践](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#342-threadlocal-最佳实践)
-* [待补充](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#待补充)
-* [参考文档与推荐阅读](jing-tong-java-bing-fa-xue-xi-bi-ji-zhi-threadlocal.md#参考文档与推荐阅读)
+* [3. ThreadLocal](精通Java并发学习笔记之ThreadLocal.md#3-threadlocal)
+  * [3.1 ThreadLocal 常用方法](精通Java并发学习笔记之ThreadLocal.md#31-threadlocal-常用方法)
+  * [3.2 ThreadLocal 原理与源码分析](精通Java并发学习笔记之ThreadLocal.md#32-threadlocal-原理与源码分析)
+    * [3.2.1 Thread、ThreadLocalMap 和 ThreadLocal](精通Java并发学习笔记之ThreadLocal.md#321-threadthreadlocalmap-和-threadlocal)
+    * [3.2.2 initialValue 设置初始值](精通Java并发学习笔记之ThreadLocal.md#322-initialvalue-设置初始值)
+    * [3.2.3 set 设置ThreadLocal值](精通Java并发学习笔记之ThreadLocal.md#323-set-设置threadlocal值)
+  * [3.3 ThreadLocalMap 处理哈希冲突](精通Java并发学习笔记之ThreadLocal.md#33-threadlocalmap-处理哈希冲突)
+  * [3.4 内存泄漏](精通Java并发学习笔记之ThreadLocal.md#34-内存泄漏)
+    * [3.4.1 为什么使用弱引用](精通Java并发学习笔记之ThreadLocal.md#341-为什么使用弱引用)
+    * [3.4.2 ThreadLocal 最佳实践](精通Java并发学习笔记之ThreadLocal.md#342-threadlocal-最佳实践)
+* [待补充](精通Java并发学习笔记之ThreadLocal.md#待补充)
+* [参考文档与推荐阅读](精通Java并发学习笔记之ThreadLocal.md#参考文档与推荐阅读)
 
 ## 3. ThreadLocal
 
