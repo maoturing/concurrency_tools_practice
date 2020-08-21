@@ -1,7 +1,6 @@
 package atomic;
 
 import java.util.concurrent.atomic.LongAccumulator;
-import java.util.concurrent.atomic.LongAdder;
 
 public class LongAccumulatorDemo {
     public static void main(String[] args) {
@@ -12,11 +11,5 @@ public class LongAccumulatorDemo {
         longAccumulator.accumulate(2);
 
         System.out.println(longAccumulator.get());
-
-        LongAdder adder = new LongAdder();
-        adder.increment();
-
-        LongAccumulator accumulator = new LongAccumulator((x, y) -> x + y, 0);
-        accumulator.accumulate(1);
     }
 }
