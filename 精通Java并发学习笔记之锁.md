@@ -177,6 +177,7 @@ public class ReentrantLockDemo {
 2. 如果锁没有被其他线程持有，则获得锁，并将锁的当前持有者设置为当前线程
 3. 如果锁被当前线程持有，则获得锁，并将锁的重入计数器+1，释放锁时会将计数器-1；
    
+
 根据以上特点，可重入锁的简单实现如下：
 ```java
 public class Lock{
@@ -540,6 +541,10 @@ HotSpot 作者经过研究发现，大多数情况下，**锁不仅不存在多�
 学完AQS再来补充
 
 ## 4.7 ReentrantReadWriteLock
+
+
+
+# 4.8 StampedLcok
 
 
 
