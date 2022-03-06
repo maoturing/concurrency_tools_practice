@@ -1,19 +1,4 @@
-<!-- TOC -->
-
-- [3. ThreadLocal](#3-threadlocal)
-    - [3.1 ThreadLocal 常用方法](#31-threadlocal-常用方法)
-    - [3.2 ThreadLocal 原理与源码分析](#32-threadlocal-原理与源码分析)
-        - [3.2.1 Thread、ThreadLocalMap 和 ThreadLocal](#321-threadthreadlocalmap-和-threadlocal)
-        - [3.2.2 initialValue 设置初始值](#322-initialvalue-设置初始值)
-        - [3.2.3 set 设置ThreadLocal值](#323-set-设置threadlocal值)
-    - [3.3 ThreadLocalMap 处理哈希冲突](#33-threadlocalmap-处理哈希冲突)
-    - [3.4 内存泄漏](#34-内存泄漏)
-        - [3.4.1 为什么使用弱引用](#341-为什么使用弱引用)
-        - [3.4.2 ThreadLocal 最佳实践](#342-threadlocal-最佳实践)
-- [待补充](#待补充)
-- [参考文档与推荐阅读](#参考文档与推荐阅读)
-
-<!-- /TOC -->
+[TOC]
 
 # 3. ThreadLocal
 
@@ -180,6 +165,7 @@ static class ThreadLocalMap {
 ```
 
 ### 3.2.2 initialValue 设置初始值
+
 `initialValue()`：对象初始化在 ThreadLocal 第一次调用 get() 方法，延迟加载。比如 SimpleDateFormat 对象的格式是固定的，就可以使用 `initialValue()`。查看ThreadLocal源码可知，设置初始值一共有两种方法：
 1. 重写 initialValue() 方法
 ```java
@@ -361,7 +347,9 @@ ThreadLocalMap维护了Entry环形数组，数组中元素Entry的逻辑上的ke
 
 ## 3.4 内存泄漏
 
-> 什么是内存泄漏？
+
+
+### 3.4.1 什么是内存泄漏？
 
 某个对象不再有用，但是占用的内存却不能被回收。
 
@@ -476,7 +464,7 @@ public class ThreadLocalMemoryLeak2 {
 }
 ```
 线程池中任务执行完了，由于没有调用线程池shutdown方法，线程池中的核心线程会一直存在，JVM进程也不会退出。下面代码是50个任务，有50个LocalVariable大对象，5个核心线程最后一次调用threadLocal.set(new LocalVariable())，会一直保存在该线程的ThreadLocalMap属性中，所以最后总共有5个LocalVariable大对象没有被回收。
- 
+
 使用Jconsle监控堆内存，发现注释remove，最终占用内存81MB，取消注释，最终占用内存40MB，差的40MB正好是5个LocalVariable大对象，每个LocalVariable是一个8MB的long数组。
 
 ![注释remove](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/2c2f162e924bbddb88361c93d7bc7f9.png)
@@ -487,16 +475,19 @@ public class ThreadLocalMemoryLeak2 {
 
 ![没有被回收的ThreadLocal弱引用](https://raw.githubusercontent.com/maoturing/PictureBed/master/pic/20200319020221.png)
 
+----
 
-重点
-------
+**重点**
+
 以上两个内存泄漏demo都不太合适，**真正内存泄漏的场景是 ThreadLocal 定义在业务类中，线程池定义在其他地方，如果业务对象被回收，则 ThreadLocal 引用会被回收，而线程池引用一直存在。**
+
 - 如果 ThreadLocal 使用强引用，那么 Entry 不会被回收，发生内存泄漏
 - 如果 ThreadLocal 使用弱引用，Entry 的弱引用 key 会被回收， value 会在 set、get、rehash等方法中删除 key==null 的 value。
 
 
 
-### 3.4.1 为什么使用弱引用
+### 3.4.2 为什么使用弱引用？
+
 从表面上看内存泄漏的根源在于使用了弱引用。网上的文章大多着重分析ThreadLocal使用了弱引用会导致内存泄漏，但是另一个问题也同样值得思考：**为什么使用弱引用而不是强引用？**
 
 
@@ -615,6 +606,7 @@ To help deal with very large and long-lived usages, the hash table entries use W
 调用 set，get，remove，rehash方法时会清楚 key==null 的 Entry，防止内存泄漏
 
 ### 3.4.2 ThreadLocal 最佳实践
+
 1. **使用完一点 remove()**，综合上面的分析，我们可以理解ThreadLocal内存泄漏的前因后果，那么怎么避免内存泄漏呢？
 
 - **每次使用完ThreadLocal，都调用它的remove()方法，清除数据。**
@@ -648,6 +640,7 @@ public class ThreadLocalNPE {
 > 彩蛋：ThreadLocal 要 set 更要 remove；线程池要 execute 更要 shutdown
 > 
 # 待补充
+
 关于ThreadLocal的面试题
 
 弱引用，根据码出高效补充，软引用可以做缓存
